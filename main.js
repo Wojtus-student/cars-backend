@@ -4,12 +4,12 @@ const app = express();
 app.use(express.json());
 
 //TODO - move to configuration
-const PORT = 9000;
+const PORT = process.env.PORT || 9000;
+
 
 app.listen(PORT, () => {
     console.log("Cars listening on port: ", PORT);
-});
-
+});    
 
 // TODO - integrate with Mongodb
 app.post('/user', (req, res) => {
