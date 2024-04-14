@@ -1,0 +1,18 @@
+{
+  "name": "cars-backend",
+  "version": "0.0.1",
+  "description": "Backend for cars project at AGH UST",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://agile.fis.agh.edu.pl/bitbucket/scm/io524cars/cars-backend.git"
+  },
+  "author": "Jakub Kawka, Jakub Mikusek",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
