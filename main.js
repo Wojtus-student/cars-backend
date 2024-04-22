@@ -1,5 +1,7 @@
 const express = require('express');
+const TripDB = require("./trip_db").TripDB;
 
+const tripDB = new TripDB();
 const app = express();
 app.use(express.json());
 

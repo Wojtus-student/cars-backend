@@ -13,6 +13,9 @@
   "author": "Jakub Kawka, Jakub Mikusek",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "fetch": "^1.1.0",
+    "mongodb": "^6.5.0",
+    "node-fetch": "^3.3.2"
   }
 }
