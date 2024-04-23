@@ -1,12 +1,10 @@
 const MongoClient = require("mongodb").MongoClient;
-const { WriteError } = require("mongodb");
-const fetch = require('node-fetch');
 
 module.exports = {
 	TripDB : class{
 		constructor(){
 			try{
-				this.client = new MongoClient("mongodb://127.0.0.1:27017/trip_db");
+				this.client = new MongoClient("mongodb://20.215.33.17:27017/trip_db");
 				this.client.connect();
 				this.carsCollection = this.client.db().collection("cars");
 				this.tripCollection = this.client.db().collection("trip");

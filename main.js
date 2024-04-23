@@ -1,5 +1,5 @@
 const express = require('express');
-const TripDB = require("./trip_db").TripDB;
+const TripDB = require("./module/trip_db.js").TripDB;
 
 const tripDB = new TripDB();
 const app = express();
@@ -8,6 +8,10 @@ app.use(express.json());
 //TODO - move to configuration
 const PORT = process.env.PORT || 9000;
 
+async function test(){
+	console.log(await tripDB.fetchTrips());
+}
+test();
 
 app.listen(PORT, () => {
     console.log("Cars listening on port: ", PORT);
