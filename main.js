@@ -36,44 +36,60 @@ app.delete('/user/:userId', (req, res) => {
 const tripDB = new TripDB();
 //Add trip
 app.post('/trip', async (req, res) => {
-	if(req.body == null){
+	if(req.body == {}){
 		res.status(400).send(JSON.stringify({message : "provided record is empty"}));
 	}
-	try{
-		let instertedID = await tripDB.addTrip(req.body);
-		res.status(200).send(JSON.stringify({_id : instertedID}));
-	}catch(e){
-		res.status(500).send();
+	else{
+		try{
+			let instertedID = await tripDB.addTrip(req.body, res.body.user.role);
+			res.status(200).send(JSON.stringify({_id : instertedID}));
+		}catch(e){
+			res.status(500).send(JSON.stringify({message : e.message}));
+		}
 	}
 });
 //Find trip
 app.get('/trip/:tripID', async(req, res) => {
-	let foundRecord = tripDB.findTrip(req.params.tripID, res.body.user.role);
+	let foundRecord = await tripDB.findTrip(req.params.tripID);
 	if(foundRecord == null){
 		res.status(404).send();
 	}
-	res.status(200).send(JSON.stringify({body : foundRecord}));
+	else{
+		res.status(200).send(JSON.stringify({body : foundRecord}));
+	}
+});
+//Find all trips
+app.get('/trip', async(req, res) => {
+	let foundRecords = await tripDB.fetchTrips();
+	if(foundRecords.length == 0){
+		res.status(404).send();
+	}
+	else{
+		res.status(200).send(JSON.stringify({body : foundRecords}));
+	}
 });
 //Update trip
 app.put('/trip/:tripID', async (req, res) => {
 	if(req.body==null){
 		res.status(400).send(JSON.stringify({message : "provided update doesn't change anything"}));
 	}
-	try{
-		if(await tripDB.updateTrip(res.params.tripID, req.body)){
-			res.status(200).send();
+	else{
+		try{
+			if(await tripDB.updateTrip(res.params.tripID, req.body)){
+				res.status(200).send();
+			}
+			res.status(404).send();
+		}catch(e){
+			res.status(500).send(JSON.stringify({message : e.message}));
 		}
-		res.status(404).send();
-	}catch(e){
-		res.status(500).send();
 	}
 });
 //Delete trip
 app.delete('/trip/:tripID', async(req, res) => {
 	try{
-		tripDB.deleteTrip(res.params.tripID, res.body.user.role);
+		await tripDB.deleteTrip(res.params.tripID, res.body.user.role);
 		res.status(200).send();
 	}catch(e){
-		res.send(500).send();
+		res.status(500).send(JSON.stringify({message : e.message}));
 	}
 });
