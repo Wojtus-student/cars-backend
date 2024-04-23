@@ -30,6 +30,9 @@ app.delete('/user/:userId', (req, res) => {
 
 //------------------------Endpoints for CROP operations on trips------------------------//
 
+//TODO: change properties after getting template of body requests.
+//TODO: add more sophisticated ways of searching for trip
+//TODO: add endpoints for searching for cars
 const tripDB = new TripDB();
 //Add trip
 app.post('/trip', async (req, res) => {
