@@ -1,12 +1,12 @@
 const request = require('supertest');
-const app = require('./main');
+const app = require('../main.js');
 const { ObjectId } = require('mongodb');
-const UserDB = require('./module/user_db.js').UserDB;
-const TripDB = require('./module/trip_db.js').TripDB;
+const UserDB = require('../module/user_db.js').UserDB;
+const TripDB = require('../module/trip_db.js').TripDB;
 
 // Mock UserDB and TripDB classes
-jest.mock('./module/user_db.js');
-jest.mock('./module/trip_db.js');
+jest.mock('../module/user_db.js');
+jest.mock('../module/trip_db.js');
 
 describe('User Endpoints', () => {
     beforeEach(() => {
