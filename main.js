@@ -135,3 +135,11 @@ app.delete('/trip/:tripID', async (req, res) => {
         res.status(500).send(JSON.stringify({ message: e.message }));
     }
 });
+
+module.exports = app;
+
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log("Cars listening on port: ", PORT);
+    });
+}
