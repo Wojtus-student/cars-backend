@@ -4,7 +4,7 @@
   "description": "Backend for cars project at AGH UST",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,9 @@
     "fetch": "^1.1.0",
     "mongodb": "^6.5.0",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }
