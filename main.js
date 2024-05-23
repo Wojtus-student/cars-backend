@@ -16,6 +16,41 @@ app.listen(PORT, () => {
 
 udb = new UserDB();
 
+app.post('/auth')
+{
+    try {
+        let foundUser = await udb.authUser(req.body);
+        res.status(200).send(foundUser);
+    } catch (e) {
+        if (e.code != undefined) {
+            res.status(e.code).send(e);
+
+        } else {
+            console.error(e);
+            res.status(500).send('Internal server error');
+        }
+    }
+}
+
+app.get('/user', async (req, res) => {
+    try {
+        let foundUsers = await udb.fetchAll();
+        for (let i = 0; i < foundUsers.length; i++)
+            {
+                foundUsers[i].password = ':v)';
+            }
+        res.status(200).send(foundUsers);
+    } catch (e) {
+        if (e.code != undefined) {
+            res.status(e.code).send(e);
+
+        } else {
+            console.error(e);
+            res.status(500).send('Internal server error');
+        }
+    }
+});
+
 // TODO - integrate with Mongodb
 app.post('/user', async (req, res) => {
     try {

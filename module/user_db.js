@@ -81,6 +81,21 @@ module.exports = {
             return await this.usersCollection.findOne({ _id: id });
         }
 
+        async authUser(body) {
+            validateFormat(body.username, 'Invalid username format');
+            validateFormat(body.password, 'Invalid password format');
+
+            foundUser = await this.fetchByName(username);
+
+            const hash = createHmac('sha256', 'thisshouldnotbehere').update(body.password).digest('hex');
+
+            if (hash == foundUser.password) {
+                return foundUser
+            } else {
+                throw new Errors.ClientError(403, "Wrong credentials");
+            }
+        }
+
         /**
          * 
          * @param {*} name
