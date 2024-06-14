@@ -6,7 +6,12 @@ const { ObjectId } = require('mongodb');
 
 const app = express();
 app.use(express.json());
+const cors = require('cors');
+const user_db = require('./module/user_db.js');
 
+
+// Dodaj middleware CORS do wszystkich tras
+app.use(cors());
 //TODO - move to configuration
 const PORT = process.env.PORT || 9000;
 
@@ -54,7 +59,9 @@ app.get('/user', async (req, res) => {
 // TODO - integrate with Mongodb
 app.post('/user', async (req, res) => {
     try {
+
         let formattedUser = udb.process(req.body);
+        console.log(formattedUser);
         let newId = await udb.add(formattedUser);
         res.status(200).send({ newId: newId });
     } catch (e) {
@@ -72,7 +79,8 @@ app.get('/user/:userId', async (req, res) => {
     try {
         let id = new ObjectId(req.params.userId);
         let foundUser = await udb.fetchById(id);
-        if (foundUser != {}) foundUser.password = ':^)';
+        console.log(foundUser);
+        // if (foundUser != {}) foundUser.password = ':^)';
         res.status(200).send(foundUser);
     } catch (e) {
         if (e.code != undefined) {
@@ -88,6 +96,7 @@ app.get('/user/:userId', async (req, res) => {
 app.put('/user/:userId', async (req, res) => {
     try {
         let formattedUser = udb.process(req.body);
+        
         await udb.update(new ObjectId(req.params.userId), formattedUser);
         res.status(200).send({ message: 'User updated' });
     } catch (e) {
@@ -102,6 +111,7 @@ app.put('/user/:userId', async (req, res) => {
 });
 
 app.delete('/user/:userId', (req, res) => {
+    user_db.delete(req.params.userId);
     res.status(200).send(`OK - Usuwanie usera ${req.params.userId}`)
 });
 
@@ -117,6 +127,8 @@ app.post('/trip', async (req, res) => {
     }
     else {
         try {
+            console.log(req.body);
+            console.log( req.body.user.role);
             let instertedID = await tripDB.addTrip(req.body, req.body.user.role);
             res.status(200).send({ _id: instertedID });
         } catch (e) {
@@ -134,9 +146,51 @@ app.get('/trip/:tripFilter', async (req, res) => {
         res.status(200).send({ body: foundRecord });
     }
 });
+//Find trip by ID
+app.get('/trips/:tripID', async (req, res) => {
+    const tripID = req.params.tripID;
+    console.log(88*"b");
+
+    try {
+        
+		console.log(88*"b");
+        const foundTrip = await tripDB.findTripByID(tripID);
+
+        if (!foundTrip) {
+            return res.status(404).send({ message: "Trip not found" });
+        }
+
+        return res.status(200).send({ body: foundTrip });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).send({ message: e.message });
+    }
+});
 //Find all trips
 app.get('/trip', async (req, res) => {
+    
+    
     let foundRecords = await tripDB.fetchTrips();
+    if (foundRecords.length == 0) {
+        res.status(404).send();
+    }
+    else {
+        res.status(200).send({ body: foundRecords });
+    }
+});
+//Find all trips
+app.get('/v2/trip/', async (req, res) => {
+    
+    let query = req.query;
+    console.log(query);
+    let params = {};
+    if (query.start) params.start = query.start;
+    if (query.finish) params.finish = query.finish;
+    if (query.data) params.data = query.data;
+    if (query.time) params.time = query.time;
+    if (query.numberPassangers) params.numberPassangers = query.numberPassangers;
+    console.log(params);
+    let foundRecords = await tripDB.fetchTripsAll(params);
     if (foundRecords.length == 0) {
         res.status(404).send();
     }
@@ -146,12 +200,13 @@ app.get('/trip', async (req, res) => {
 });
 //Update trip
 app.put('/trip/:tripID', async (req, res) => {
+    console.log("aaaaaaaaaaaaaaaa");
     if (req.body == null) {
         res.status(400).send({ message: "provided update doesn't change anything" });
     }
     else {
         try {
-            if (await tripDB.updateTrip(req.params.tripID, req.body)) {
+            if (await tripDB.updateTrip(req.params.tripID, req.body, "admin")) {
                 res.status(200).send();
             }
             res.status(404).send();
@@ -169,22 +224,39 @@ app.delete('/trip/:tripID', async (req, res) => {
         res.status(500).send({ message: e.message });
     }
 });
-//Add car
+//get all cars
 app.get('/car', async (req, res) => {
-	req.body = {
-		registration : "szy44416",
-		vin : "knaba24429t732164",
-		registration_date : "16.04.2009",
-		user:{
-			role: "driver",
-		}
-	};
+	
     if (req.body == {}) {
         res.status(400).send({ message: "provided record is empty" });
     }
     else {
         try {
-            let instertedID = await tripDB.addCar(req.body, req.body.user.role);
+            let instertedID = await tripDB.fetchCars();
+            // res.status(200).send(JSON.stringify({ _id: instertedID }));
+            res.status(200).send(instertedID);
+        } catch (e) {
+            res.status(500).send({ message: e.message });
+        }
+    }
+});
+//Add car
+app.post('/car', async (req, res) => {
+    let query = req.body;
+    console.log(query);
+    let params = {};
+    if (query.registration) params.registration = query.registration;
+    if (query.vin) params.vin = query.vin;
+    if (query.registration_date) params.registration_date = query.registration_date;
+    if (query.user) params.user = query.user;
+    console.log(params);
+    if (params == {}) {
+        res.status(400).send({ message: "provided record is empty" });
+    }
+    else {
+        try {
+            let instertedID = await tripDB.addCar(params, params.user.role);
+            console.log(instertedID);
             // res.status(200).send(JSON.stringify({ _id: instertedID }));
             res.status(200).send(instertedID);
         } catch (e) {
@@ -200,6 +272,15 @@ app.get('/car/:carFilter', async (req, res) => {
     }
     else {
         res.status(200).send({ body: foundRecord });
+    }
+});
+app.get('/cars/:userId', async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const cars = await tripDB.getCarsByUserId(userId);
+        res.status(200).send(cars);
+    } catch (e) {
+        res.status(500).send({ message: e.message });
     }
 });
 //Update car
@@ -218,7 +299,7 @@ app.put('/car/:carID', async (req, res) => {
         }
     }
 });
-//Delete trip
+//Delete car
 app.delete('/car/:carID', async (req, res) => {
     try {
         await tripDB.deleteCar(req.params.carID, req.body.user.role);

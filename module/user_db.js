@@ -7,7 +7,7 @@ const Errors = require('./rest_ceptions.js');
 KNOWN_ROLES = ['admin', 'driver', 'regular'];
 
 function validateFormat(variable, message) {
-    if (variable === undefined || variable === null || typeof variable != 'string') {
+    if (variable === undefined || variable === null ) {
         throw new Errors.ClientError(400, message);
     }
 }
@@ -60,6 +60,9 @@ module.exports = {
 
 
             userTmp.email = userInfo.email;
+            userTmp.name = userInfo.name;
+            userTmp.surname = userInfo.surname;
+            userTmp.pesel = userInfo.pesel;
 
             if (gatherID) {
                 try {
@@ -78,9 +81,10 @@ module.exports = {
          * @returns user object
          */
         async fetchById(id) {
+           console.log("fetching by id" + id);
             return await this.usersCollection.findOne({ _id: id });
         }
-
+        
         async authUser(body) {
             validateFormat(body.username, 'Invalid username format');
             validateFormat(body.password, 'Invalid password format');
